@@ -66,6 +66,22 @@ python -m http.server 8080 -d tizen-app
 
 O Chrome/Edge do PC não reproduz alguns formatos que a TV suporta (MKV, HEVC, AC3).
 
+## Hospedar em Docker (VPS, porta 90)
+
+O container usa `nginx:alpine` e só entrega os arquivos estáticos: o app roda no
+navegador/TV do usuário.
+
+```bash
+git clone https://github.com/andregds3-hub/PlayerIPTV_10.git /opt/playeriptv
+cd /opt/playeriptv
+docker compose up -d --build      # publica em http://IP-DA-VPS:90
+
+# Atualizar após um novo push
+git pull && docker compose up -d --build
+```
+
+Para usar outra porta, altere `"90:80"` em `docker-compose.yml`.
+
 ## Observações
 
 - As credenciais ficam salvas em `localStorage` sem criptografia.

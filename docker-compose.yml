@@ -1,0 +1,22 @@
+# PlayerIPTV — container isolado servindo o app na porta 90 do host.
+#   Subir/atualizar:  docker compose up -d --build
+#   Logs:             docker compose logs -f
+#   Parar:            docker compose down
+services:
+  playeriptv:
+    build: .
+    image: playeriptv:latest
+    container_name: playeriptv
+    restart: unless-stopped
+    ports:
+      - "90:80"
+    # Isolamento e limites (o app é estático, consome muito pouco)
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    cpus: 0.50
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

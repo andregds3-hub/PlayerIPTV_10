@@ -1,0 +1,14 @@
+# Só o necessário entra no contexto de build da imagem
+.git
+.gitignore
+.idea
+.vscode
+.venv
+venv
+__pycache__
+.claudetools
+main.py
+README.md
+*.wgt
+.sign
+.buildResult

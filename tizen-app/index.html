@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--
+  PlayerIPTV — index.html
+  Estrutura do aplicativo IPTV (Xtream Codes) para Samsung Smart TV (Tizen).
+  Toda a navegação é feita pelo controle remoto (sem mouse). Os elementos
+  navegáveis têm a classe "focusable" e ficam agrupados em linhas ".nav-row",
+  que o app.js usa para a navegação espacial (setas + OK).
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>PlayerIPTV</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Container de 1920x1080; o app.js escala para outras resoluções -->
+  <div id="app">
+
+    <!-- ===================== FUNDO DO HERO BANNER ===================== -->
+    <!-- Duas camadas para fazer crossfade suave entre as imagens de fundo -->
+    <div id="hero-bg" aria-hidden="true">
+      <div class="hero-layer" id="heroLayerA"></div>
+      <div class="hero-layer" id="heroLayerB"></div>
+      <div class="hero-gradient"></div>
+    </div>
+
+    <!-- ===================== CONTEÚDO PRINCIPAL ===================== -->
+    <main id="main">
+      <!-- Hero Banner: destaque com título, metadados e ações -->
+      <section id="hero">
+        <img id="heroLogo" class="hero-logo hidden" alt="">
+        <div class="hero-kicker" id="heroKicker">PlayerIPTV</div>
+        <h1 class="hero-title" id="heroTitle">Carregando…</h1>
+        <div class="meta" id="heroMeta"></div>
+        <p class="hero-plot" id="heroPlot"></p>
+        <div class="hero-actions nav-row">
+          <div class="btn btn--primary focusable" id="heroPlay" tabindex="-1">
+            <svg class="btn-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <span>Assistir</span>
+          </div>
+          <div class="btn focusable" id="heroInfo" tabindex="-1">
+            <svg class="btn-icon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 5h2v2h-2zm0 4h2v6h-2z"/></svg>
+            <span>Detalhes</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Prateleiras (carrosséis) — geradas pelo app.js -->
+      <div id="rows-viewport">
+        <div id="rows"></div>
+      </div>
+    </main>
+
+    <!-- ===================== MENU LATERAL RETRÁTIL ===================== -->
+    <div class="sidebar-shade"></div>
+    <nav id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="brand-text">PLAYER<span>IPTV</span></div>
+      </div>
+      <ul class="menu">
+        <li class="menu-item focusable active" data-page="home" tabindex="-1">
+          <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>
+          <span class="menu-label">Início</span>
+        </li>
+        <li class="menu-item focusable" data-page="movies" tabindex="-1">
+          <svg class="menu-icon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v2h2V5zm12 0v2h2V5zM5 9v2h2V9zm12 0v2h2V9zM5 13v2h2v-2zm12 0v2h2v-2zM5 17v2h2v-2zm12 0v2h2v-2zM9 5v14h6V5z"/></svg>
+          <span class="menu-label">Filmes</span>
+        </li>
+        <li class="menu-item focusable" data-page="series" tabindex="-1">
+          <svg class="menu-icon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 7h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm3-4h10v2H7zm3 7.5v6l5-3z"/></svg>
+          <span class="menu-label">Séries</span>
+        </li>
+        <li class="menu-item focusable" data-page="live" tabindex="-1">
+          <svg class="menu-icon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8.5 2.5L12 6l3.5-3.5 1.06 1.06L14.12 6H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5.88L7.44 3.56zM5 8v10h14V8z"/></svg>
+          <span class="menu-label">TV ao Vivo</span>
+        </li>
+        <li class="menu-separator"></li>
+        <li class="menu-item focusable" data-page="settings" tabindex="-1">
+          <svg class="menu-icon" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>
+          <span class="menu-label">Configurações</span>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- ===================== DETALHES (FILME / SÉRIE) ===================== -->
+    <section id="details" class="hidden">
+      <div class="details-backdrop" id="detailsBackdrop"></div>
+      <div class="details-shade"></div>
+      <div class="details-content">
+        <div class="details-poster"><img id="detailsPoster" alt=""></div>
+        <div class="details-info">
+          <div class="hero-kicker" id="detailsKicker"></div>
+          <h1 class="details-title" id="detailsTitle"></h1>
+          <div class="meta" id="detailsMeta"></div>
+          <p class="details-plot" id="detailsPlot"></p>
+          <p class="details-credits" id="detailsCredits"></p>
+          <div class="details-actions nav-row" id="detailsActions"></div>
+          <!-- Temporadas (carrossel horizontal) -->
+          <div class="seasons-viewport hidden" id="detailsSeasonsWrap">
+            <div class="row-track seasons nav-row" id="detailsSeasons"></div>
+          </div>
+          <!-- Lista de episódios (rolagem vertical controlada por JS) -->
+          <div class="episodes scroll-y hidden" id="detailsEpisodes"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PLAYER DE VÍDEO ===================== -->
+    <section id="player" class="hidden" tabindex="-1">
+      <video id="video" preload="auto"></video>
+      <div class="player-spinner"></div>
+      <div class="player-state" id="playerState"></div>
+
+      <div class="player-error hidden" id="playerError">
+        <h3>Não foi possível reproduzir</h3>
+        <p id="playerErrorMsg"></p>
+        <small>OK para tentar novamente • VOLTAR para sair</small>
+      </div>
+
+      <!-- OSD: informações e controles exibidos sobre o vídeo -->
+      <div class="osd osd-top">
+        <div class="osd-kicker" id="osdKicker"></div>
+        <div class="osd-title" id="osdTitle"></div>
+        <div class="osd-subtitle" id="osdSubtitle"></div>
+      </div>
+      <div class="osd osd-bottom">
+        <div class="osd-live">
+          <span class="badge badge--live">● AO VIVO</span>
+          <span class="osd-epg" id="osdEpg"></span>
+        </div>
+        <div class="osd-vod">
+          <div class="progress">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-knob" id="progressKnob"></div>
+          </div>
+          <div class="osd-times">
+            <span id="timeCurrent">0:00</span>
+            <span id="timeTotal">0:00</span>
+          </div>
+        </div>
+        <div class="osd-hints" id="osdHints"></div>
+      </div>
+    </section>
+
+    <!-- ===================== LOGIN (URL/DNS, usuário e senha) ===================== -->
+    <!-- Cada campo é navegável pelo controle; OK abre o teclado virtual da TV -->
+    <section id="login" class="hidden">
+      <div class="login-box">
+        <div class="login-brand">PLAYER<span>IPTV</span></div>
+        <h1 class="login-title">Entrar</h1>
+        <p class="login-subtitle">Informe os dados de acesso Xtream Codes fornecidos pelo seu provedor.</p>
+
+        <div class="nav-row">
+          <div class="field focusable" data-field="server" tabindex="-1">
+            <label for="loginServer">URL do servidor (DNS)</label>
+            <input id="loginServer" type="text" tabindex="-1" placeholder="http://servidor.com:8080"
+                   autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="nav-row">
+          <div class="field focusable" data-field="username" tabindex="-1">
+            <label for="loginUser">Usuário</label>
+            <input id="loginUser" type="text" tabindex="-1" placeholder="seu usuário"
+                   autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="nav-row">
+          <div class="field focusable" data-field="password" tabindex="-1">
+            <label for="loginPass">Senha</label>
+            <input id="loginPass" type="password" tabindex="-1" placeholder="sua senha" autocomplete="off">
+          </div>
+        </div>
+
+        <p class="login-error hidden" id="loginError"></p>
+
+        <div class="nav-row login-actions">
+          <div class="btn btn--primary focusable" id="loginSubmit" tabindex="-1">
+            <svg class="btn-icon" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67zM19 3H5a2 2 0 0 0-2 2v4h2V5h14v14H5v-4H3v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+            <span>Entrar</span>
+          </div>
+          <div class="btn focusable" id="loginExit" tabindex="-1"><span>Sair</span></div>
+        </div>
+
+        <p class="login-hint">
+          Pressione <strong>OK</strong> em um campo para digitar. Dica: cole o link M3U completo
+          (get.php?username=…&amp;password=…) no campo do servidor e o usuário e a senha serão preenchidos.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===================== SPLASH / CARREGAMENTO ===================== -->
+    <div id="splash">
+      <div class="splash-logo">PLAYER<span>IPTV</span></div>
+      <div class="spinner"></div>
+      <div class="splash-status" id="splashStatus">Iniciando…</div>
+    </div>
+
+    <!-- ===================== DIÁLOGO (erros / confirmações) ===================== -->
+    <div id="dialog" class="hidden">
+      <div class="dialog-box">
+        <h2 id="dialogTitle"></h2>
+        <p id="dialogMessage"></p>
+        <div class="dialog-actions nav-row" id="dialogActions"></div>
+      </div>
+    </div>
+
+    <!-- Mensagens rápidas -->
+    <div id="toast"></div>
+  </div>
+
+  <!-- APIs da Samsung (só existem na TV/emulador; no navegador o 404 é inofensivo) -->
+  <script src="$WEBAPIS/webapis/webapis.js"></script>
+
+  <!-- hls.js: usa a cópia local (recomendado) e, se não existir, carrega do CDN -->
+  <script src="lib/hls.min.js"></script>
+  <script>
+    if (!window.Hls) {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5/dist/hls.min.js"><\/script>');
+    }
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PlayerIPTV — config.xml (manifesto do pacote Tizen para Samsung Smart TV)
+
+  Observações:
+  • O "package" deve ter exatamente 10 caracteres alfanuméricos e o
+    "id" da aplicação é package + "." + nome.
+  • required_version 3.0 = TVs Samsung 2017+ (o app.js é compatível com o
+    motor Chromium 47+ dessas TVs).
+  • Adicione um ícone "icon.png" (recomendado 512x423 px) na raiz do projeto.
+-->
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://playeriptv.app/PlayerIPTV"
+        version="1.0.0"
+        viewmodes="maximized">
+
+    <tizen:application id="PlyrIPTV01.PlayerIPTV" package="PlyrIPTV01" required_version="3.0"/>
+
+    <name>PlayerIPTV</name>
+    <description>Player IPTV (Xtream Codes) para Samsung Smart TV</description>
+    <content src="index.html"/>
+    <icon src="icon.png"/>
+
+    <!-- Perfil de TV Samsung -->
+    <tizen:profile name="tv-samsung"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+
+    <!-- ===================== PERMISSÕES ===================== -->
+    <!-- Acesso à internet (API Xtream, streams e capas) -->
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <!-- Registro das teclas de mídia do controle (Play, Pause, CH+/CH-...) -->
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+
+    <!-- ===================== ACESSO DE REDE (CORS / WARP) ===================== -->
+    <!-- Em Web Apps Tizen, as origens listadas aqui podem ser acessadas pelo app
+         (fetch/XHR, vídeo e imagens) sem depender de cabeçalhos CORS do servidor.
+         O curinga é necessário porque o usuário digita qualquer URL/DNS no login,
+         as capas vêm de vários domínios (ex.: image.tmdb.org) e os streams costumam
+         ser redirecionados para outros hosts (CDN). -->
+    <access origin="*" subdomains="true"/>
+
+    <!-- ===================== CONFIGURAÇÕES DO APP ===================== -->
+    <tizen:setting screen-orientation="landscape"
+                   context-menu="disable"
+                   background-support="disable"
+                   encryption="disable"
+                   install-location="auto"
+                   hwkey-event="enable"/>
+</widget>

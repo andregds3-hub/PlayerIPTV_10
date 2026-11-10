@@ -1,0 +1,25 @@
+# Ambiente Python local (usado só para servir o app em testes)
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# Utilitários locais
+.claudetools/
+
+# Tizen Studio / build
+*.wgt
+.buildResult/
+.sign/
+.tproject
+.project
+.settings/
+
+# Sistema
+Thumbs.db
+Desktop.ini
+.DS_Store

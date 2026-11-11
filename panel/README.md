@@ -29,7 +29,7 @@ Sistema de ativação e gerenciamento de licenças para o PlayerIPTV, similar ao
 
 ### Requisitos
 - Docker e Docker Compose
-- Porta 90 liberada
+- Porta 91 liberada
 
 ### Instalação
 
@@ -51,7 +51,7 @@ docker-compose up -d --build
 ```
 
 4. Acesse o painel:
-- URL: http://seu-servidor:90
+- URL: http://seu-servidor:91
 - Usuário: `admin`
 - Senha: `admin123` (ou a definida em ADMIN_PASSWORD)
 

@@ -6,7 +6,7 @@ services:
     container_name: playeriptv-panel
     restart: unless-stopped
     ports:
-      - "90:8000"
+      - "91:8000"
     volumes:
       - ./data:/app/data
     environment:

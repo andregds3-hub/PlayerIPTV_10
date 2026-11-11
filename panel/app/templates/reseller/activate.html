@@ -1,0 +1,112 @@
+{% extends "panel_layout.html" %}
+{% block title %}Ativar Dispositivo - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Ativar Dispositivo</h2>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Nova Ativação</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Seus créditos: <strong>{{ user.credits|credits }}</strong>
+                </div>
+                
+                <form method="post" action="/reseller/devices/activate">
+                    <div class="mb-3">
+                        <label class="form-label">Código do dispositivo *</label>
+                        <input type="text" name="code" class="form-control bg-dark border-secondary" 
+                               value="{{ code or '' }}" required placeholder="Ex: K7M-42Q" 
+                               style="text-transform: uppercase; font-size: 1.5rem; text-align: center; letter-spacing: 2px;">
+                        <small class="text-muted">O cliente vê esse código na TV ao abrir o app</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Plano *</label>
+                        <select name="plan_id" class="form-select bg-dark border-secondary" required>
+                            {% for plan in plans %}
+                            <option value="{{ plan.id }}">
+                                {{ plan.name }} ({{ plan.days }} dias) - {{ plan.credits_cost|credits }} créditos
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <hr class="border-secondary my-4">
+                    
+                    <h6 class="mb-3">Configuração IPTV (opcional)</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">DNS do servidor</label>
+                        <input type="text" name="dns" class="form-control bg-dark border-secondary" 
+                               placeholder="http://servidor.com:80">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Usuário</label>
+                            <input type="text" name="xtream_username" class="form-control bg-dark border-secondary">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="text" name="xtream_password" class="form-control bg-dark border-secondary">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-lightning me-2"></i>Ativar Dispositivo
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        {% if device %}
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-tv me-2"></i>Dispositivo Encontrado</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h3 class="text-primary fw-bold">{{ device.code }}</h3>
+                    <p class="text-muted">{{ device.model or 'Modelo desconhecido' }}</p>
+                    <span class="badge {{ device.status.value|status_badge }}" style="font-size: 1rem;">
+                        {{ device.status.value|status_label }}
+                    </span>
+                </div>
+                
+                <hr class="border-secondary">
+                
+                <p><strong>Plataforma:</strong> {{ device.platform or '-' }}</p>
+                <p><strong>Cadastro:</strong> {{ device.created_at|datetime }}</p>
+                {% if device.expires_at %}
+                <p><strong>Expira em:</strong> {{ device.expires_at|date }}</p>
+                {% endif %}
+                {% if device.dns %}
+                <p><strong>DNS atual:</strong> {{ device.dns }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card card-dark">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-tv" style="font-size: 4rem; color: #444;"></i>
+                <h5 class="mt-3 text-muted">Como funciona</h5>
+                <ol class="text-start text-muted">
+                    <li class="mb-2">O cliente abre o app na TV</li>
+                    <li class="mb-2">Um código aparece na tela (ex: K7M-42Q)</li>
+                    <li class="mb-2">Você digita esse código aqui</li>
+                    <li class="mb-2">Escolhe o plano e configura o IPTV</li>
+                    <li>A TV é ativada automaticamente!</li>
+                </ol>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

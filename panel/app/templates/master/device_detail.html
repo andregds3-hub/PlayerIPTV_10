@@ -1,0 +1,136 @@
+{% extends "panel_layout.html" %}
+{% block title %}{{ device.code }} - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/master/devices" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card card-dark">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-tv" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold text-primary">{{ device.code }}</h3>
+                <p class="text-muted">{{ device.model or 'Modelo desconhecido' }}</p>
+                
+                <span class="badge {{ device.status.value|status_badge }}" style="font-size: 1rem;">
+                    {{ device.status.value|status_label }}
+                </span>
+                
+                <hr class="border-secondary my-4">
+                
+                <div class="text-start">
+                    <p><strong>MAC:</strong> {{ device.mac_address or '-' }}</p>
+                    <p><strong>Plataforma:</strong> {{ device.platform or '-' }}</p>
+                    <p><strong>Versão app:</strong> {{ device.app_version or '-' }}</p>
+                    <p><strong>Cadastro:</strong> {{ device.created_at|datetime }}</p>
+                    <p><strong>Último acesso:</strong> {{ device.last_seen|datetime if device.last_seen else '-' }}</p>
+                    {% if device.trial_ends %}
+                    <p><strong>Teste até:</strong> {{ device.trial_ends|date }}</p>
+                    {% endif %}
+                    {% if device.expires_at %}
+                    <p><strong>Expira em:</strong> {{ device.expires_at|date }}</p>
+                    {% endif %}
+                    {% if device.owner %}
+                    <p><strong>Revendedor:</strong> 
+                        <a href="/master/resellers/{{ device.owner.id }}">{{ device.owner.username }}</a>
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <hr class="border-secondary my-4">
+                
+                <div class="d-grid gap-2">
+                    {% if device.status.value == 'blocked' %}
+                    <form method="post" action="/master/devices/{{ device.id }}/unblock">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-unlock me-2"></i>Desbloquear
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="/master/devices/{{ device.id }}/block">
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-lock me-2"></i>Bloquear
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <!-- Activate/Renew -->
+        <div class="card card-dark mb-4">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Ativar / Renovar</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/master/devices/{{ device.id }}/activate">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Plano</label>
+                            <select name="plan_id" class="form-select bg-dark border-secondary" required>
+                                {% for plan in plans %}
+                                <option value="{{ plan.id }}">{{ plan.name }} ({{ plan.days }} dias)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">DNS do servidor</label>
+                            <input type="text" name="dns" class="form-control bg-dark border-secondary" 
+                                   value="{{ device.dns or '' }}" placeholder="http://servidor.com:80">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Usuário Xtream</label>
+                            <input type="text" name="xtream_username" class="form-control bg-dark border-secondary" 
+                                   value="{{ device.xtream_username or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Senha Xtream</label>
+                            <input type="text" name="xtream_password" class="form-control bg-dark border-secondary" 
+                                   value="{{ device.xtream_password or '' }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i>Ativar
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Assign to reseller -->
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-person me-2"></i>Atribuir a Revendedor</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/master/devices/{{ device.id }}/assign">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <select name="owner_id" class="form-select bg-dark border-secondary">
+                                <option value="">-- Sem revendedor --</option>
+                                {% for r in resellers %}
+                                <option value="{{ r.id }}" {{ 'selected' if device.owner_id == r.id else '' }}>
+                                    {{ r.username }} ({{ r.credits|credits }} créditos)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <button type="submit" class="btn btn-outline-primary w-100">Salvar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

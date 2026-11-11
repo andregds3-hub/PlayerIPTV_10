@@ -1,0 +1,105 @@
+{% extends "panel_layout.html" %}
+{% block title %}{{ device.code }} - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/reseller/devices" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card card-dark">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-tv" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold text-primary">{{ device.code }}</h3>
+                <p class="text-muted">{{ device.model or 'Modelo desconhecido' }}</p>
+                
+                <span class="badge {{ device.status.value|status_badge }}" style="font-size: 1rem;">
+                    {{ device.status.value|status_label }}
+                </span>
+                
+                <hr class="border-secondary my-4">
+                
+                <div class="text-start">
+                    <p><strong>Plataforma:</strong> {{ device.platform or '-' }}</p>
+                    <p><strong>Cadastro:</strong> {{ device.created_at|datetime }}</p>
+                    <p><strong>Último acesso:</strong> {{ device.last_seen|datetime if device.last_seen else '-' }}</p>
+                    {% if device.expires_at %}
+                    <p><strong>Expira em:</strong> {{ device.expires_at|date }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <!-- Renew -->
+        <div class="card card-dark mb-4">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i>Renovar</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-coin me-2"></i>Seus créditos: <strong>{{ user.credits|credits }}</strong>
+                </div>
+                <form method="post" action="/reseller/devices/activate" class="d-flex gap-3 align-items-end">
+                    <input type="hidden" name="code" value="{{ device.code }}">
+                    <div class="flex-grow-1">
+                        <label class="form-label">Plano</label>
+                        <select name="plan_id" class="form-select bg-dark border-secondary" required>
+                            {% for plan in plans %}
+                            <option value="{{ plan.id }}">
+                                {{ plan.name }} ({{ plan.days }} dias) - {{ plan.credits_cost|credits }} créditos
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat me-2"></i>Renovar
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Config -->
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Configuração IPTV</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/reseller/devices/{{ device.id }}/config">
+                    <div class="mb-3">
+                        <label class="form-label">DNS do servidor</label>
+                        <input type="text" name="dns" class="form-control bg-dark border-secondary" 
+                               value="{{ device.dns or '' }}" placeholder="http://servidor.com:80">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Usuário</label>
+                            <input type="text" name="xtream_username" class="form-control bg-dark border-secondary" 
+                                   value="{{ device.xtream_username or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="text" name="xtream_password" class="form-control bg-dark border-secondary" 
+                                   value="{{ device.xtream_password or '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observações</label>
+                        <textarea name="notes" class="form-control bg-dark border-secondary" rows="2"
+                                  placeholder="Anotações sobre este cliente (só você vê)">{{ device.notes or '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i>Salvar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

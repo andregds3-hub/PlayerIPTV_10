@@ -1,0 +1,82 @@
+{% extends "panel_layout.html" %}
+{% block title %}Comprar Créditos - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Comprar Créditos</h2>
+    <span class="credits-badge" style="font-size: 1.2rem;">
+        <i class="bi bi-coin me-1"></i>{{ user.credits|credits }} créditos
+    </span>
+</div>
+
+<div class="row g-4 mb-4">
+    {% for pkg in packages %}
+    <div class="col-md-6 col-lg-3">
+        <div class="card card-dark h-100">
+            <div class="card-body text-center">
+                <h4 class="fw-bold">{{ pkg.name }}</h4>
+                <div class="my-3">
+                    <span class="credits-badge" style="font-size: 1.5rem;">{{ pkg.credits|credits }}</span>
+                    {% if pkg.bonus_credits > 0 %}
+                    <div class="text-success mt-2">
+                        <i class="bi bi-gift me-1"></i>+{{ pkg.bonus_credits|credits }} bônus
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="h3 text-primary mb-3">{{ pkg.price|currency }}</div>
+                <form method="post" action="/reseller/credits/buy">
+                    <input type="hidden" name="package_id" value="{{ pkg.id }}">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cart me-2"></i>Comprar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">Nenhum pacote disponível no momento.</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card card-dark">
+    <div class="card-header bg-transparent border-bottom border-secondary">
+        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Pagamentos Recentes</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Pacote</th>
+                        <th>Valor</th>
+                        <th>Créditos</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in recent_payments %}
+                    <tr>
+                        <td>{{ payment.created_at|datetime }}</td>
+                        <td>-</td>
+                        <td>{{ payment.amount|currency }}</td>
+                        <td><span class="credits-badge">{{ payment.credits|credits }}</span></td>
+                        <td>
+                            <span class="badge {{ payment.status|status_badge }}">
+                                {{ payment.status|status_label }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">Nenhum pagamento</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -118,7 +118,9 @@
      1. CONFIGURAÇÃO
      ====================================================================== */
   var CONFIG = {
-    // Servidor, usuário e senha são informados na tela de login (State.account)
+    // URL do painel de ativação (deixe vazio para modo offline/teste)
+    panelUrl: '',   // Ex: 'http://seupainel.com:8080'
+    // Servidor, usuário e senha são informados pelo painel ou pela tela de login
     requestTimeout: 25000,       // ms — listas grandes podem demorar
     maxConcurrentRequests: 3,    // requisições simultâneas (TVs têm CPU/rede limitadas)
     maxItemsPerRow: 60,          // cards renderizados por prateleira (protege a memória)
@@ -604,7 +606,7 @@
     current: null,
     lastContent: null,
     stack: [],      // escopos sobrepostos (detalhes, diálogo, player)
-    roots: { login: 'login', content: 'main', sidebar: 'sidebar', grid: 'grid', details: 'details', dialog: 'dialog', player: 'player' },
+    roots: { activation: 'activation', login: 'login', content: 'main', sidebar: 'sidebar', grid: 'grid', details: 'details', dialog: 'dialog', player: 'player' },
 
     root: function () { return document.getElementById(Nav.roots[Nav.scope]) || document.body; },
 
@@ -1335,6 +1337,211 @@
         });
       });
       return chain;
+    }
+  };
+
+  /* ---------- Ativação (painel de licenças) ----------
+     Se CONFIG.panelUrl estiver configurado, o app precisa de ativação:
+     1. Registra o dispositivo e obtém um código (ex: K7M-42Q)
+     2. Mostra o código na tela para o usuário enviar ao revendedor
+     3. Verifica periodicamente o status da ativação
+     4. Quando ativado, recebe DNS/usuário/senha e libera o app */
+  var Activation = {
+    pollTimer: null,
+    pollInterval: 10000,   // verifica a cada 10s
+
+    // Retorna true se o painel de ativação está configurado
+    isEnabled: function () { return !!(CONFIG.panelUrl && CONFIG.panelUrl.length > 0); },
+
+    // Obtém o MAC Address do dispositivo (Tizen)
+    getMacAddress: function () {
+      try {
+        if (window.webapis && window.webapis.network && window.webapis.network.getMac) {
+          return window.webapis.network.getMac();
+        }
+        if (window.webapis && window.webapis.productinfo && window.webapis.productinfo.getDuid) {
+          return window.webapis.productinfo.getDuid();
+        }
+      } catch (e) { /* ignora */ }
+      // Fallback: gera um ID único e salva
+      var id = Storage.get('deviceId', null);
+      if (!id) {
+        id = 'WEB-' + Math.random().toString(36).substr(2, 12).toUpperCase();
+        Storage.set('deviceId', id);
+      }
+      return id;
+    },
+
+    // Obtém o modelo da TV
+    getModel: function () {
+      try {
+        if (window.webapis && window.webapis.productinfo && window.webapis.productinfo.getModel) {
+          return window.webapis.productinfo.getModel();
+        }
+      } catch (e) { /* ignora */ }
+      return navigator.userAgent.match(/Tizen\s*[\d.]+/i) ? navigator.userAgent.match(/Tizen\s*[\d.]+/i)[0] : 'Web';
+    },
+
+    // Chama a API do painel
+    apiCall: function (method, endpoint, data) {
+      return new Promise(function (resolve, reject) {
+        var url = CONFIG.panelUrl + endpoint;
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url, true);
+        xhr.timeout = 15000;
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch (e) { reject(new Error('Resposta inválida do servidor')); }
+          } else {
+            reject(new Error('Erro ' + xhr.status));
+          }
+        };
+        xhr.onerror = function () { reject(new Error('Erro de conexão')); };
+        xhr.ontimeout = function () { reject(new Error('Tempo esgotado')); };
+        xhr.send(data ? JSON.stringify(data) : null);
+      });
+    },
+
+    // Registra o dispositivo e obtém o código
+    register: function () {
+      return Activation.apiCall('POST', '/api/v1/device/register', {
+        mac_address: Activation.getMacAddress(),
+        model: Activation.getModel(),
+        platform: 'tizen',
+        app_version: '1.0.0'
+      }).then(function (data) {
+        State.deviceCode = data.code;
+        State.deviceStatus = data.status;
+        Storage.set('deviceCode', data.code);
+        return data;
+      });
+    },
+
+    // Verifica o status do dispositivo
+    checkStatus: function () {
+      if (!State.deviceCode) return Promise.reject(new Error('Sem código'));
+      return Activation.apiCall('GET', '/api/v1/device/' + State.deviceCode + '/status').then(function (data) {
+        State.deviceStatus = data.status;
+        // Se recebeu configuração Xtream, salva
+        if (data.dns) {
+          State.activationConfig = {
+            server: data.dns,
+            username: data.username || '',
+            password: data.password || ''
+          };
+        }
+        return data;
+      });
+    },
+
+    // Envia heartbeat
+    heartbeat: function () {
+      if (!State.deviceCode) return;
+      Activation.apiCall('POST', '/api/v1/device/' + State.deviceCode + '/heartbeat', {
+        app_version: '1.0.0'
+      })['catch'](function () { /* ignora erros de heartbeat */ });
+    },
+
+    // Verifica se o dispositivo está liberado para uso
+    isActive: function () {
+      return State.deviceStatus === 'active' || State.deviceStatus === 'trial';
+    },
+
+    // Mostra a tela de ativação
+    showScreen: function () {
+      var el = $('#activation');
+      el.classList.remove('hidden');
+      Activation.updateScreen();
+      Nav.openOverlay('activation', el.querySelector('.focusable'));
+      Activation.startPolling();
+    },
+
+    hideScreen: function () {
+      $('#activation').classList.add('hidden');
+      Activation.stopPolling();
+      Nav.closeOverlay();
+    },
+
+    updateScreen: function () {
+      var codeEl = $('#activationCode');
+      var statusEl = $('#activationStatus');
+      var messageEl = $('#activationMessage');
+
+      if (State.deviceCode) {
+        codeEl.textContent = State.deviceCode;
+        codeEl.classList.remove('loading');
+      } else {
+        codeEl.textContent = '...···...';
+        codeEl.classList.add('loading');
+      }
+
+      var statusLabels = {
+        trial: 'Período de Teste',
+        active: 'Ativo',
+        expired: 'Expirado',
+        blocked: 'Bloqueado'
+      };
+      statusEl.textContent = statusLabels[State.deviceStatus] || 'Aguardando ativação';
+      statusEl.className = 'activation-status status-' + (State.deviceStatus || 'pending');
+    },
+
+    startPolling: function () {
+      Activation.stopPolling();
+      Activation.pollTimer = setInterval(function () {
+        Activation.checkStatus().then(function (data) {
+          Activation.updateScreen();
+          // Se foi ativado e tem configuração, entra no app
+          if (Activation.isActive() && State.activationConfig && State.activationConfig.server) {
+            Activation.enterApp();
+          }
+        })['catch'](function () { /* ignora erros de polling */ });
+      }, Activation.pollInterval);
+    },
+
+    stopPolling: function () {
+      if (Activation.pollTimer) {
+        clearInterval(Activation.pollTimer);
+        Activation.pollTimer = null;
+      }
+    },
+
+    // Fecha a tela de ativação e entra no app com a configuração recebida
+    enterApp: function () {
+      Activation.hideScreen();
+      if (State.activationConfig && State.activationConfig.server) {
+        App.boot(State.activationConfig);
+      } else {
+        // Sem configuração do painel: abre o login manual
+        Login.show(null);
+      }
+    },
+
+    // Botão "Verificar agora"
+    checkNow: function () {
+      Toast.show('Verificando...');
+      Activation.checkStatus().then(function (data) {
+        Activation.updateScreen();
+        if (Activation.isActive()) {
+          if (State.activationConfig && State.activationConfig.server) {
+            Toast.show('Dispositivo ativado!');
+            setTimeout(function () { Activation.enterApp(); }, 1000);
+          } else {
+            // Ativo mas sem config: deixa usar o login manual
+            Toast.show('Ativado! Configure seu servidor.');
+            setTimeout(function () { Activation.enterApp(); }, 1500);
+          }
+        } else if (State.deviceStatus === 'expired') {
+          Toast.show('Assinatura expirada. Renove para continuar.');
+        } else if (State.deviceStatus === 'blocked') {
+          Toast.show('Dispositivo bloqueado.');
+        } else {
+          Toast.show('Ainda não ativado.');
+        }
+      })['catch'](function (err) {
+        Toast.show('Erro: ' + err.message);
+      });
     }
   };
 
@@ -2625,7 +2832,11 @@
     pageToken: 0,
     preferNative: Storage.get('preferNative', false),
     lite: Storage.get('lite', null),   // null = automático (detectLite)
-    engine: Storage.get('engine', 'avplay')   // avplay (Samsung) | html5
+    engine: Storage.get('engine', 'avplay'),   // avplay (Samsung) | html5
+    // Ativação
+    deviceCode: Storage.get('deviceCode', null),
+    deviceStatus: null,   // trial | active | expired | blocked
+    activationConfig: null   // { dns, username, password } recebidos do painel
   };
 
   var PAGES = {
@@ -2634,7 +2845,8 @@
     series: { title: 'Séries', subtitle: 'Carregando catálogo de séries…' },
     live: { title: 'TV ao Vivo', subtitle: 'Carregando canais…' },
     favorites: { title: 'Minha lista', subtitle: 'Seus filmes, séries e canais favoritos.' },
-    search: { title: 'Pesquisar', subtitle: '' }
+    search: { title: 'Pesquisar', subtitle: '' },
+    activation: { title: 'Ativação', subtitle: '' }
   };
 
   var App = {
@@ -2654,6 +2866,7 @@
       Dialog.init();
       Login.init();
       Player.init();
+      App.initActivation();
       App.bindKeys();
 
       document.addEventListener('visibilitychange', function () { if (document.hidden) Player.onHidden(); });
@@ -2666,8 +2879,13 @@
         if (Nav.current && document.body.contains(Nav.current)) Nav.focus(Nav.current);
       });
 
-      // Usa o último acesso salvo; sem ele, abre a tela de login
-      App.boot(Storage.get('account', null));
+      // Se o painel de ativação está configurado, verifica primeiro
+      if (Activation.isEnabled()) {
+        App.checkActivation();
+      } else {
+        // Modo offline: usa o último acesso salvo ou abre o login
+        App.boot(Storage.get('account', null));
+      }
     },
 
     // Mantém o layout de 1920x1080 em qualquer resolução (ex.: TVs 1280x720)
@@ -2680,6 +2898,20 @@
       CONFIG.heroDebounce = 600;
       CONFIG.apiCacheSize = 20;
       CONFIG.homeRows = { vod: 4, series: 2, live: 2 };
+    },
+
+    initActivation: function () {
+      var checkBtn = $('#activationCheck');
+      var manualBtn = $('#activationManual');
+      if (checkBtn) {
+        checkBtn._onSelect = function () { Activation.checkNow(); };
+      }
+      if (manualBtn) {
+        manualBtn._onSelect = function () {
+          Activation.hideScreen();
+          Login.show(null);
+        };
+      }
     },
 
     applyScale: function () {
@@ -2744,6 +2976,9 @@
         case 'grid':
           Grid.close();
           break;
+        case 'activation':
+          App.confirmExit();
+          break;
         case 'sidebar':
           if (State.page !== 'home') App.goTo('home'); else App.confirmExit();
           break;
@@ -2775,6 +3010,59 @@
         title: 'Sair do PlayerIPTV?',
         message: 'Deseja realmente fechar o aplicativo?',
         buttons: [{ label: 'Sair', icon: 'exit', action: function () { TV.exit(); } }, { label: 'Cancelar' }]
+      });
+    },
+
+    /* ----- Ativação (quando o painel está configurado) ----- */
+    checkActivation: function () {
+      Splash.show('Verificando ativação...');
+      // Se já tem código salvo, verifica o status
+      if (State.deviceCode) {
+        Activation.checkStatus().then(function (data) {
+          Splash.hide();
+          if (Activation.isActive()) {
+            // Ativo: usa config do painel ou abre login manual
+            if (State.activationConfig && State.activationConfig.server) {
+              App.boot(State.activationConfig);
+            } else {
+              App.boot(Storage.get('account', null));
+            }
+          } else {
+            // Não ativo: mostra tela de ativação
+            Activation.showScreen();
+          }
+        })['catch'](function () {
+          // Erro de conexão: tenta registrar de novo
+          App.registerDevice();
+        });
+      } else {
+        App.registerDevice();
+      }
+    },
+
+    registerDevice: function () {
+      Splash.show('Registrando dispositivo...');
+      Activation.register().then(function (data) {
+        Splash.hide();
+        if (Activation.isActive()) {
+          // Já está ativo (ou em teste)
+          if (State.activationConfig && State.activationConfig.server) {
+            App.boot(State.activationConfig);
+          } else {
+            App.boot(Storage.get('account', null));
+          }
+        } else {
+          Activation.showScreen();
+        }
+      })['catch'](function (err) {
+        Splash.hide();
+        Dialog.confirm(
+          'Erro ao conectar ao servidor de ativação: ' + err.message + '.\n\nTentar novamente?',
+          function (ok) {
+            if (ok) App.checkActivation();
+            else TV.close();
+          }
+        );
       });
     },
 

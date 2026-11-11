@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Login - PlayerIPTV Panel{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 100%);">
+    <div class="card card-dark" style="width: 100%; max-width: 420px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <h2 class="text-primary fw-bold">PlayerIPTV</h2>
+                <p class="text-muted">Painel de Gerenciamento</p>
+            </div>
+            
+            {% if error %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+            </div>
+            {% endif %}
+            
+            <form method="post" action="/login">
+                <div class="mb-3">
+                    <label class="form-label">Usuário</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" name="username" class="form-control bg-dark border-secondary" placeholder="Seu usuário" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Senha</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" name="password" class="form-control bg-dark border-secondary" placeholder="Sua senha" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+                </button>
+            </form>
+            
+            <hr class="my-4 border-secondary">
+            
+            <div class="text-center">
+                <p class="text-muted mb-2">Ainda não tem conta?</p>
+                <a href="/register" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-person-plus me-2"></i>Cadastre-se como Revendedor
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

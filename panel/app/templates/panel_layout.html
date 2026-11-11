@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block body %}
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-tv me-2"></i>PlayerIPTV</h4>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            {% if user.role.value == 'master' %}
+            <!-- Master Menu -->
+            <li class="nav-item">
+                <a class="nav-link {% if request.url.path == '/master/' %}active{% endif %}" href="/master/">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            
+            <div class="sidebar-section">Gerenciamento</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if '/master/resellers' in request.url.path %}active{% endif %}" href="/master/resellers">
+                    <i class="bi bi-people"></i> Revendedores
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if '/master/devices' in request.url.path %}active{% endif %}" href="/master/devices">
+                    <i class="bi bi-tv"></i> Dispositivos
+                </a>
+            </li>
+            
+            <div class="sidebar-section">Financeiro</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if '/master/plans' in request.url.path %}active{% endif %}" href="/master/plans">
+                    <i class="bi bi-list-check"></i> Planos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if '/master/packages' in request.url.path %}active{% endif %}" href="/master/packages">
+                    <i class="bi bi-box-seam"></i> Pacotes de Créditos
+                </a>
+            </li>
+            
+            <div class="sidebar-divider"></div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if '/master/settings' in request.url.path %}active{% endif %}" href="/master/settings">
+                    <i class="bi bi-gear"></i> Configurações
+                </a>
+            </li>
+            
+            {% else %}
+            <!-- Reseller Menu -->
+            <li class="nav-item">
+                <a class="nav-link {% if request.url.path == '/reseller/' %}active{% endif %}" href="/reseller/">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            
+            <div class="sidebar-section">Dispositivos</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if '/reseller/devices/activate' in request.url.path %}active{% endif %}" href="/reseller/devices/activate">
+                    <i class="bi bi-plus-circle"></i> Ativar Dispositivo
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.url.path == '/reseller/devices' %}active{% endif %}" href="/reseller/devices">
+                    <i class="bi bi-tv"></i> Meus Dispositivos
+                </a>
+            </li>
+            
+            <div class="sidebar-section">Créditos</div>
+            
+            <li class="nav-item">
+                <a class="nav-link {% if '/reseller/credits' in request.url.path %}active{% endif %}" href="/reseller/credits">
+                    <i class="bi bi-coin"></i> Comprar Créditos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if '/reseller/transactions' in request.url.path %}active{% endif %}" href="/reseller/transactions">
+                    <i class="bi bi-clock-history"></i> Histórico
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    
+    <div class="user-menu">
+        <div class="dropdown">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle"></i>
+                    <div class="text-start flex-grow-1">
+                        <div class="fw-bold">{{ user.username }}</div>
+                        <small class="text-muted">{{ 'Administrador' if user.role.value == 'master' else 'Revendedor' }}</small>
+                    </div>
+                </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark w-100">
+                {% if user.role.value == 'reseller' %}
+                <li>
+                    <span class="dropdown-item-text">
+                        <span class="credits-badge"><i class="bi bi-coin me-1"></i>{{ user.credits|credits }}</span>
+                        créditos
+                    </span>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-left me-2"></i>Sair</a></li>
+            </ul>
+        </div>
+    </div>
+</aside>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+{% endblock %}

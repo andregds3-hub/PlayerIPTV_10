@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PlayerIPTV Panel{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e50914;
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --bg-sidebar: #141414;
+        }
+        body {
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid #2a2a2a;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .sidebar-brand h4 {
+            color: var(--primary-color);
+            margin: 0;
+            font-weight: 700;
+        }
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        .sidebar-nav .nav-item {
+            padding: 0 0.75rem;
+        }
+        .sidebar-nav .nav-link {
+            color: #9a9a9a;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar-nav .nav-link.active {
+            background: var(--primary-color);
+        }
+        .sidebar-nav .nav-link i {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+        .sidebar-divider {
+            border-top: 1px solid #2a2a2a;
+            margin: 0.5rem 1rem;
+        }
+        .sidebar-section {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #2a2a2a;
+        }
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .stat-card .stat-label {
+            color: #9a9a9a;
+            font-size: 0.9rem;
+        }
+        .card-dark {
+            background: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+        }
+        .table-dark {
+            --bs-table-bg: transparent;
+        }
+        .table-dark thead th {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .btn-primary:hover {
+            background: #c40812;
+            border-color: #c40812;
+        }
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        .user-menu {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            border-top: 1px solid #2a2a2a;
+            background: var(--bg-sidebar);
+        }
+        .user-menu .dropdown-toggle {
+            width: 100%;
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #fff;
+        }
+        .credits-badge {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,84 @@
+{% extends "panel_layout.html" %}
+{% block title %}Pagamento Pix - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/reseller/credits" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card card-dark">
+            <div class="card-body text-center">
+                <h4 class="mb-4">Pagamento via Pix</h4>
+                
+                {% if payment.status == 'pending' %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-hourglass-split me-2"></i>
+                    Aguardando pagamento
+                </div>
+                
+                <div class="my-4">
+                    <div class="h2 text-primary">{{ payment.amount|currency }}</div>
+                    <p class="text-muted">{{ payment.credits|credits }} créditos</p>
+                </div>
+                
+                <!-- QR Code placeholder -->
+                <div class="bg-white p-4 rounded mb-4 mx-auto" style="max-width: 250px;">
+                    <div class="text-dark text-center">
+                        <i class="bi bi-qr-code" style="font-size: 8rem;"></i>
+                        <p class="mb-0 mt-2">QR Code Pix</p>
+                    </div>
+                </div>
+                
+                {% if payment.pix_code %}
+                <div class="mb-4">
+                    <label class="form-label">Pix Copia e Cola</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control bg-dark border-secondary" 
+                               value="{{ payment.pix_code }}" readonly id="pixCode">
+                        <button class="btn btn-outline-light" type="button" onclick="copyPix()">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <p class="text-muted small">
+                    Após o pagamento, seus créditos serão adicionados automaticamente.<br>
+                    Expira em: {{ payment.expires_at|datetime }}
+                </p>
+                
+                {% elif payment.status == 'paid' %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Pagamento confirmado!
+                </div>
+                <p>{{ payment.credits|credits }} créditos foram adicionados à sua conta.</p>
+                <a href="/reseller/" class="btn btn-primary">Voltar ao Dashboard</a>
+                
+                {% else %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Pagamento {{ payment.status }}
+                </div>
+                <a href="/reseller/credits" class="btn btn-outline-light">Tentar novamente</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyPix() {
+    var input = document.getElementById('pixCode');
+    input.select();
+    document.execCommand('copy');
+    alert('Código Pix copiado!');
+}
+</script>
+{% endblock %}

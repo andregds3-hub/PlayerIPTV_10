@@ -1,0 +1,94 @@
+{% extends "panel_layout.html" %}
+{% block title %}Planos - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Planos de Ativação</h2>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0">Novo Plano</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/master/plans">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" name="name" class="form-control bg-dark border-secondary" 
+                               required placeholder="Ex: Mensal">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dias</label>
+                        <input type="number" name="days" class="form-control bg-dark border-secondary" 
+                               required min="1" placeholder="30">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Custo em créditos</label>
+                        <input type="number" name="credits_cost" class="form-control bg-dark border-secondary" 
+                               required min="0" step="0.01" placeholder="1.00">
+                        <small class="text-muted">Quanto o revendedor gasta para ativar</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço sugerido (R$)</label>
+                        <input type="number" name="price" class="form-control bg-dark border-secondary" 
+                               min="0" step="0.01" placeholder="15.00">
+                        <small class="text-muted">Opcional, referência para o revendedor</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-2"></i>Criar Plano
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card card-dark">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Dias</th>
+                                <th>Créditos</th>
+                                <th>Preço sugerido</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in plans %}
+                            <tr>
+                                <td class="fw-bold">{{ plan.name }}</td>
+                                <td>{{ plan.days }}</td>
+                                <td><span class="credits-badge">{{ plan.credits_cost|credits }}</span></td>
+                                <td>{{ plan.price|currency if plan.price else '-' }}</td>
+                                <td>
+                                    {% if plan.is_active %}
+                                    <span class="badge bg-success">Ativo</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" action="/master/plans/{{ plan.id }}/toggle" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-light">
+                                            <i class="bi {{ 'bi-pause' if plan.is_active else 'bi-play' }}"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Nenhum plano cadastrado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

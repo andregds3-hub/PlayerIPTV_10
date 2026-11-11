@@ -1,0 +1,144 @@
+{% extends "panel_layout.html" %}
+{% block title %}Dashboard - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Dashboard</h2>
+    <span class="text-muted">Bem-vindo, {{ user.name or user.username }}!</span>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-primary bg-opacity-25 text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.total_resellers }}</div>
+                    <div class="stat-label">Revendedores</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-success bg-opacity-25 text-success">
+                    <i class="bi bi-tv"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.active_devices }}</div>
+                    <div class="stat-label">Dispositivos Ativos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-info bg-opacity-25 text-info">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.trial_devices }}</div>
+                    <div class="stat-label">Em Teste</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning bg-opacity-25 text-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.expired_devices }}</div>
+                    <div class="stat-label">Expirados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Devices -->
+    <div class="col-lg-8">
+        <div class="card card-dark">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-tv me-2"></i>Últimos Dispositivos</h5>
+                <a href="/master/devices" class="btn btn-sm btn-outline-light">Ver todos</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Modelo</th>
+                                <th>Status</th>
+                                <th>Revendedor</th>
+                                <th>Cadastro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in recent_devices %}
+                            <tr>
+                                <td>
+                                    <a href="/master/devices/{{ device.id }}" class="text-decoration-none fw-bold">
+                                        {{ device.code }}
+                                    </a>
+                                </td>
+                                <td>{{ device.model or '-' }}</td>
+                                <td>
+                                    <span class="badge {{ device.status.value|status_badge }}">
+                                        {{ device.status.value|status_label }}
+                                    </span>
+                                </td>
+                                <td>{{ device.owner.username if device.owner else '-' }}</td>
+                                <td>{{ device.created_at|datetime }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Nenhum dispositivo cadastrado</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Resellers -->
+    <div class="col-lg-4">
+        <div class="card card-dark">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-people me-2"></i>Revendedores</h5>
+                <a href="/master/resellers/new" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus"></i>
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for reseller in recent_resellers %}
+                    <li class="list-group-item bg-transparent border-secondary d-flex justify-content-between align-items-center">
+                        <a href="/master/resellers/{{ reseller.id }}" class="text-decoration-none">
+                            <div class="fw-bold">{{ reseller.username }}</div>
+                            <small class="text-muted">{{ reseller.name or reseller.email }}</small>
+                        </a>
+                        <span class="credits-badge">{{ reseller.credits|credits }}</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item bg-transparent text-center text-muted py-4">
+                        Nenhum revendedor cadastrado
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

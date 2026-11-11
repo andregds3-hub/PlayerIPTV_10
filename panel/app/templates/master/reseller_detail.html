@@ -1,0 +1,156 @@
+{% extends "panel_layout.html" %}
+{% block title %}{{ reseller.username }} - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/master/resellers" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row g-4">
+    <!-- Reseller Info -->
+    <div class="col-lg-4">
+        <div class="card card-dark mb-4">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold">{{ reseller.username }}</h4>
+                <p class="text-muted mb-2">{{ reseller.name or reseller.email }}</p>
+                {% if reseller.is_active %}
+                <span class="badge bg-success">Ativo</span>
+                {% else %}
+                <span class="badge bg-danger">Bloqueado</span>
+                {% endif %}
+                
+                <hr class="border-secondary my-4">
+                
+                <div class="text-center mb-3">
+                    <div class="credits-badge" style="font-size: 1.5rem;">{{ reseller.credits|credits }}</div>
+                    <div class="text-muted mt-1">Créditos disponíveis</div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <form method="post" action="/master/resellers/{{ reseller.id }}/toggle">
+                        <button type="submit" class="btn {{ 'btn-danger' if reseller.is_active else 'btn-success' }} w-100">
+                            <i class="bi {{ 'bi-lock' if reseller.is_active else 'bi-unlock' }} me-2"></i>
+                            {{ 'Bloquear' if reseller.is_active else 'Desbloquear' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Credits -->
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h6 class="mb-0"><i class="bi bi-coin me-2"></i>Adicionar Créditos</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/master/resellers/{{ reseller.id }}/credits">
+                    <div class="mb-3">
+                        <label class="form-label">Quantidade</label>
+                        <input type="number" name="amount" class="form-control bg-dark border-secondary" 
+                               step="0.01" required placeholder="Ex: 10.00">
+                        <small class="text-muted">Use valor negativo para remover</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <input type="text" name="description" class="form-control bg-dark border-secondary" 
+                               placeholder="Opcional">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-plus-lg me-2"></i>Adicionar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Devices & Transactions -->
+    <div class="col-lg-8">
+        <!-- Devices -->
+        <div class="card card-dark mb-4">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-tv me-2"></i>Dispositivos ({{ devices|length }})</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Modelo</th>
+                                <th>Status</th>
+                                <th>Expira</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in devices %}
+                            <tr>
+                                <td>
+                                    <a href="/master/devices/{{ device.id }}" class="fw-bold text-decoration-none">
+                                        {{ device.code }}
+                                    </a>
+                                </td>
+                                <td>{{ device.model or '-' }}</td>
+                                <td>
+                                    <span class="badge {{ device.status.value|status_badge }}">
+                                        {{ device.status.value|status_label }}
+                                    </span>
+                                </td>
+                                <td>{{ device.expires_at|date if device.expires_at else '-' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">Nenhum dispositivo</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions -->
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Histórico de Créditos</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>Saldo</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in transactions %}
+                            <tr>
+                                <td>{{ tx.created_at|datetime }}</td>
+                                <td><span class="badge {{ tx.type.value|tx_badge }}">{{ tx.type.value|tx_label }}</span></td>
+                                <td class="{{ 'text-success' if tx.amount > 0 else 'text-danger' }}">
+                                    {{ '+' if tx.amount > 0 else '' }}{{ tx.amount|credits }}
+                                </td>
+                                <td>{{ tx.balance_after|credits }}</td>
+                                <td><small>{{ tx.description or '-' }}</small></td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Nenhuma transação</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

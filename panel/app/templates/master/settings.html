@@ -1,0 +1,82 @@
+{% extends "panel_layout.html" %}
+{% block title %}Configurações - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Configurações</h2>
+
+<form method="post" action="/master/settings">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card card-dark">
+                <div class="card-header bg-transparent border-bottom border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Geral</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do aplicativo</label>
+                        <input type="text" name="app_name" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('app_name', 'PlayerIPTV') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Dias de teste</label>
+                        <input type="number" name="trial_days" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('trial_days', '7') }}" min="0">
+                        <small class="text-muted">0 = sem período de teste</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card card-dark">
+                <div class="card-header bg-transparent border-bottom border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-headset me-2"></i>Suporte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Email de suporte</label>
+                        <input type="email" name="support_email" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('support_email', '') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">WhatsApp de suporte</label>
+                        <input type="text" name="support_whatsapp" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('support_whatsapp', '') }}" placeholder="5511999999999">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card card-dark">
+                <div class="card-header bg-transparent border-bottom border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-qr-code me-2"></i>Pix</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chave Pix</label>
+                        <input type="text" name="pix_key" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('pix_key', '') }}" placeholder="CPF, email, telefone ou chave aleatória">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nome do recebedor</label>
+                        <input type="text" name="pix_name" class="form-control bg-dark border-secondary" 
+                               value="{{ settings.get('pix_name', '') }}">
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>Para pagamentos automáticos, configure uma integração com Mercado Pago, PagSeguro ou outro gateway. 
+                        Por enquanto, os pagamentos são manuais.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-lg me-2"></i>Salvar Configurações
+            </button>
+        </div>
+    </div>
+</form>
+{% endblock %}

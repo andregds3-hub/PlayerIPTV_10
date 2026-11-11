@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  panel:
+    build: .
+    container_name: playeriptv-panel
+    restart: unless-stopped
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:///./data/panel.db
+      - SECRET_KEY=${SECRET_KEY:-changeme_in_production}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+    deploy:
+      resources:
+        limits:
+          memory: 256M

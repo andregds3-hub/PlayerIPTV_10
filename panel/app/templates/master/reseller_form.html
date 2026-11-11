@@ -1,0 +1,71 @@
+{% extends "panel_layout.html" %}
+{% block title %}{{ 'Editar' if reseller else 'Novo' }} Revendedor - PlayerIPTV Panel{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="/master/resellers" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card card-dark">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h5 class="mb-0">{{ 'Editar' if reseller else 'Novo' }} Revendedor</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/master/resellers{{ '/' + reseller.id|string if reseller else '' }}">
+                    <div class="mb-3">
+                        <label class="form-label">Usuário *</label>
+                        <input type="text" name="username" class="form-control bg-dark border-secondary" 
+                               value="{{ reseller.username if reseller else '' }}" required 
+                               {% if reseller %}readonly{% endif %}>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="email" class="form-control bg-dark border-secondary" 
+                               value="{{ reseller.email if reseller else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Senha {% if not reseller %}*{% endif %}</label>
+                        <input type="password" name="password" class="form-control bg-dark border-secondary" 
+                               {% if not reseller %}required{% endif %} minlength="6"
+                               placeholder="{{ 'Deixe vazio para manter' if reseller else '' }}">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" name="name" class="form-control bg-dark border-secondary" 
+                                   value="{{ reseller.name if reseller else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">WhatsApp</label>
+                            <input type="text" name="phone" class="form-control bg-dark border-secondary" 
+                                   value="{{ reseller.phone if reseller else '' }}">
+                        </div>
+                    </div>
+                    
+                    {% if not reseller %}
+                    <div class="mb-3">
+                        <label class="form-label">Créditos iniciais</label>
+                        <input type="number" name="initial_credits" class="form-control bg-dark border-secondary" 
+                               value="0" min="0" step="0.01">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-2"></i>{{ 'Salvar' if reseller else 'Criar' }}
+                        </button>
+                        <a href="/master/resellers" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

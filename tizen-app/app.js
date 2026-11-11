@@ -119,7 +119,7 @@
      ====================================================================== */
   var CONFIG = {
     // URL do painel de ativação (deixe vazio para modo offline/teste)
-    panelUrl: '',   // Ex: 'http://seupainel.com:8080'
+    panelUrl: 'http://109.199.107.136:8091',
     // Servidor, usuário e senha são informados pelo painel ou pela tela de login
     requestTimeout: 25000,       // ms — listas grandes podem demorar
     maxConcurrentRequests: 3,    // requisições simultâneas (TVs têm CPU/rede limitadas)

@@ -61,7 +61,7 @@ class User(Base):
     
     # Relationships
     devices = relationship("Device", back_populates="owner")
-    transactions = relationship("Transaction", back_populates="user", foreign_keys="Transaction.user_id")
+    transactions = relationship("Transaction", back_populates="user", foreign_keys="[Transaction.user_id]")
 
 
 class Device(Base):
@@ -109,7 +109,7 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="transactions")
+    user = relationship("User", back_populates="transactions", foreign_keys=[user_id])
     
     type = Column(SQLEnum(TransactionType), nullable=False)
     amount = Column(Float, nullable=False)  # Positive or negative

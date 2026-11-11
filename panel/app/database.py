@@ -61,7 +61,7 @@ class User(Base):
     
     # Relationships
     devices = relationship("Device", back_populates="owner")
-    transactions = relationship("Transaction", back_populates="user")
+    transactions = relationship("Transaction", back_populates="user", foreign_keys="Transaction.user_id")
 
 
 class Device(Base):

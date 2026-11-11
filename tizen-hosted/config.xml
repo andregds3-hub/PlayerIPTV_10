@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PlayerIPTV (VPS) — config.xml do app "carregador".
+
+  Este pacote contém só o loader (index.html + loader.js). A cada abertura ele
+  baixa da VPS a versão atual do PlayerIPTV (index.html, style.css, app.js e
+  hls.js) e a executa dentro do próprio app instalado. Assim:
+    • atualizações só exigem "git pull" + "docker compose up -d --build" na VPS;
+    • o código baixado mantém as permissões do app (teclas de mídia e acesso
+      de rede sem CORS, declarados abaixo).
+
+  Tem package/id próprios: pode ficar instalado junto com a versão empacotada.
+  Adicione um "icon.png" (512x423 px) nesta pasta antes de empacotar.
+-->
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://playeriptv.app/PlayerIPTVHosted"
+        version="1.0.0"
+        viewmodes="maximized">
+
+    <tizen:application id="PlyrIPTVH1.PlayerIPTVHosted" package="PlyrIPTVH1" required_version="2.4"/>
+
+    <name>PlayerIPTV (VPS)</name>
+    <description>PlayerIPTV carregado da VPS (homologação)</description>
+    <content src="index.html"/>
+    <icon src="icon.png"/>
+
+    <tizen:profile name="tv-samsung"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+
+    <!-- Mesmas permissões do app completo -->
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+
+    <!-- Acesso de rede: a VPS (código do app), o servidor Xtream digitado no login,
+         as capas (vários domínios) e os redirecionamentos dos streams -->
+    <access origin="*" subdomains="true"/>
+
+    <tizen:setting screen-orientation="landscape"
+                   context-menu="disable"
+                   background-support="disable"
+                   encryption="disable"
+                   install-location="auto"
+                   hwkey-event="enable"/>
+</widget>

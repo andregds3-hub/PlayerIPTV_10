@@ -30,7 +30,9 @@ tizen-app/
 └── lib/hls.min.js  # hls.js 1.5 (com fallback para CDN)
 ```
 
-Compatibilidade: TVs Samsung **Tizen 3.0+** (2017 em diante, Chromium 47+).
+Compatibilidade: TVs Samsung **Tizen 2.4+** (2016 em diante). O `app.js` é ES5 puro, com
+polyfills de `Promise` e `Element.closest`, para rodar no motor WebKit das TVs 2016.
+Nessas TVs o `hls.js` não carrega e o app usa automaticamente o player nativo.
 
 ## Executar na TV / emulador (Tizen Studio)
 
@@ -81,6 +83,18 @@ git pull && docker compose up -d --build
 ```
 
 Para usar outra porta, altere `"90:80"` em `docker-compose.yml`.
+
+## App "carregador" (código vindo da VPS)
+
+A pasta `tizen-hosted/` é um pacote Tizen mínimo que, a cada abertura, baixa o app
+atual de `http://109.199.107.136:90` (endereço em `BASE_URL`, no `loader.js`) e o executa
+dentro do app instalado. Instala-se uma vez; as atualizações saem só pela VPS:
+
+```bash
+cd /opt/playeriptv && git pull && docker compose up -d --build
+```
+
+Ele tem `package` próprio (`PlyrIPTVH1`) e pode conviver com a versão empacotada.
 
 ## Observações
 

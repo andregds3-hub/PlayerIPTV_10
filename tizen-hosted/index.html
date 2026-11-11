@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+  PlayerIPTV (VPS) — página do carregador.
+  Mostra a tela de carregamento enquanto o loader.js busca o app na VPS.
+-->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>PlayerIPTV</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0b0f; cursor: none; }
+    #loader {
+      position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+      display: -webkit-flex; display: flex;
+      -webkit-flex-direction: column; flex-direction: column;
+      -webkit-align-items: center; align-items: center;
+      -webkit-justify-content: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #1d0b0f 0%, #0b0b0f 65%);
+      color: #fff; font-family: "TizenSans", "SamsungOne", "Roboto", Arial, sans-serif; text-align: center;
+    }
+    .loader-logo { font-size: 9vh; font-weight: 800; letter-spacing: .5vh; }
+    .loader-logo span { color: #e50914; }
+    .loader-spinner {
+      width: 6vh; height: 6vh; margin-top: 5vh; border-radius: 50%;
+      border: .6vh solid rgba(255, 255, 255, .15); border-top-color: #e50914;
+      -webkit-animation: loader-spin 1s linear infinite; animation: loader-spin 1s linear infinite;
+    }
+    .loader-msg { max-width: 70%; margin-top: 3vh; font-size: 2.6vh; line-height: 1.5; color: #b3b3b3; }
+    .loader-hint { margin-top: 2vh; font-size: 2.2vh; color: #6f6f76; }
+    .hidden { display: none !important; }
+    @-webkit-keyframes loader-spin { to { -webkit-transform: rotate(360deg); } }
+    @keyframes loader-spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div class="loader-logo">PLAYER<span>IPTV</span></div>
+    <div class="loader-spinner" id="loaderSpinner"></div>
+    <p class="loader-msg" id="loaderMsg">Carregando o aplicativo…</p>
+    <p class="loader-hint hidden" id="loaderHint">OK para tentar novamente • VOLTAR para sair</p>
+  </div>
+
+  <!-- APIs da Samsung (carregadas aqui, ficam disponíveis para o app baixado) -->
+  <script src="$WEBAPIS/webapis/webapis.js"></script>
+  <script src="loader.js"></script>
+</body>
+</html>

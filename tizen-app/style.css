@@ -3,8 +3,9 @@
    Tema escuro premium (inspirado em Netflix / Prime Video) para Smart TV.
 
    • Resolução de projeto: 1920x1080 (o app.js escala o #app para outras).
-   • Compatível com Chromium 47+ (Tizen 3.0+): sem variáveis CSS, sem "gap"
-     em flexbox e sem aspect-ratio (não existem nas TVs mais antigas).
+   • Compatível com Tizen 2.4+ (TVs 2016, WebKit) e mais novas: sem variáveis
+     CSS, sem "gap" em flexbox e sem aspect-ratio; flexbox e transform têm
+     também as versões com prefixo -webkit-.
    • O foco usa :focus e também a classe .focused (aplicada pelo app.js),
      para o destaque não sumir caso a janela perca o foco do sistema.
 
@@ -751,6 +752,154 @@ body.sidebar-open .brand-text { opacity: 1; }
   overflow: hidden;
 }
 
+/* ---------- Card "Ver todos" ---------- */
+.card-more {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #2a2a33, #18181d);
+}
+.card-more-icon { font-size: 64px; line-height: 1; margin-bottom: 10px; color: #e50914; }
+.card-more small { margin-top: 8px; font-size: 20px; font-weight: 400; color: #9a9aa2; }
+
+/* ==========================================================================
+   GRADE "VER TODOS" (categoria completa, paginada)
+   ========================================================================== */
+#grid {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 15;
+  background: #0b0b0f;
+}
+.grid-header {
+  position: absolute;
+  left: 110px;
+  top: 60px;
+  right: 110px;
+  height: 150px;
+}
+.grid-title {
+  font-size: 56px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.grid-info { margin-top: 10px; font-size: 24px; color: #9a9aa2; }
+.grid-body {
+  position: absolute;
+  left: 100px;
+  top: 220px;
+  right: 60px;
+  bottom: 0;
+  overflow: hidden;
+  padding: 14px 0 40px 10px;
+}
+.grid-row {
+  display: -webkit-flex;
+  display: flex;
+  margin-bottom: 26px;
+}
+.grid-pager {
+  display: -webkit-flex;
+  display: flex;
+  padding: 10px 0 30px 8px;
+}
+
+/* ==========================================================================
+   PESQUISA (teclado na tela, estilo Netflix)
+   ========================================================================== */
+.search { padding: 70px 150px 10px; }
+
+.search-box {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  width: 1200px;
+  height: 90px;
+  margin-bottom: 26px;
+  padding: 0 30px;
+  border: 3px solid #2c2c34;
+  border-radius: 12px;
+  background: #1c1c22;
+}
+.search-box .btn-icon {
+  width: 44px;
+  height: 44px;
+  -webkit-flex: 0 0 44px;
+  flex: 0 0 44px;
+  margin-right: 22px;
+  fill: #8f8f96;
+}
+.search-query {
+  font-size: 40px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.search-query.is-empty { font-weight: 400; color: #55555c; }
+.search-caret {
+  display: inline-block;
+  width: 3px;
+  height: 44px;
+  margin-left: 4px;
+  vertical-align: middle;
+  background: #e50914;
+}
+
+.keyboard-row {
+  display: -webkit-flex;
+  display: flex;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+.key {
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 76px;
+  height: 64px;
+  line-height: 64px;
+  margin-right: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #e5e5e5;
+  background: #24242b;
+  transition: transform .15s ease, background-color .15s ease;
+}
+.key--wide { width: 170px; font-size: 22px; text-transform: none; }
+.key:focus,
+.key.focused {
+  color: #000;
+  background: #fff;
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+}
+
+.search-status { margin-top: 14px; min-height: 34px; font-size: 24px; color: #9a9aa2; }
+#searchResults .shelf:first-child { margin-top: 10px; }
+
 /* ==========================================================================
    CONFIGURAÇÕES
    ========================================================================== */
@@ -1127,3 +1276,75 @@ body.sidebar-open .brand-text { opacity: 1; }
   -webkit-transform: translate(-50%, 0);
   transform: translate(-50%, 0);
 }
+
+/* ==========================================================================
+   MODO LEVE (TVs antigas, ex.: Tizen 2.4 / 2016) — ativado pelo app.js (body.lite)
+   Sem animações e transições, sem sombras com desfoque e sem camadas de GPU
+   extras: a rolagem das prateleiras passa a ser feita por scrollTop/scrollLeft.
+   O foco continua com borda branca e scale(1.05), só que sem animação.
+   ========================================================================== */
+body.lite *,
+body.lite *::before,
+body.lite *::after {
+  -webkit-transition: none !important;
+  transition: none !important;
+  -webkit-animation: none !important;
+  animation: none !important;
+}
+/* Os indicadores de carregamento continuam girando */
+body.lite .spinner,
+body.lite .player-spinner {
+  -webkit-animation: spin 1s linear infinite !important;
+  animation: spin 1s linear infinite !important;
+}
+body.lite #rows,
+body.lite .row-track { will-change: auto; }
+
+body.lite .card:focus,
+body.lite .card.focused { box-shadow: 0 0 0 4px #fff; }
+body.lite .btn:focus,
+body.lite .btn.focused { box-shadow: 0 0 0 4px #0b0b0f, 0 0 0 8px #fff; }
+body.lite .field:focus,
+body.lite .field.focused,
+body.lite .details-poster,
+body.lite .dialog-box,
+body.lite #toast,
+body.lite .progress-knob { box-shadow: none; }
+body.lite .hero-title,
+body.lite .hero-plot { text-shadow: none; }
+
+/* Menu lateral: fundo sólido no lugar da sombra em tela cheia */
+body.lite .sidebar-shade { display: none; }
+body.lite.sidebar-open #sidebar { background: #0b0b0f; }
+
+body.lite .card.skeleton .card-media { opacity: .6; }
+
+/* Banner e detalhes sem imagem de fundo: cada troca de foco repinta bem menos */
+body.lite #hero-bg { background: #0b0b0f; }
+body.lite .hero-layer,
+body.lite .hero-gradient,
+body.lite .details-backdrop { display: none; }
+
+/* ==========================================================================
+   AVPLAY (player da Samsung) — o vídeo é desenhado num plano atrás da página,
+   então tudo o que fica atrás do player precisa ficar transparente ou oculto.
+   ========================================================================== */
+#avplayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+}
+html.avplay-active,
+html.avplay-active body,
+html.avplay-active #app,
+html.avplay-active #player { background: transparent !important; }
+html.avplay-active #video { display: none; }
+html.avplay-active #main,
+html.avplay-active #hero-bg,
+html.avplay-active #sidebar,
+html.avplay-active .sidebar-shade,
+html.avplay-active #details,
+html.avplay-active #grid,
+html.avplay-active #login { visibility: hidden; }
